@@ -1,0 +1,46 @@
+A registers contain addresses
+When operations are performed, it's moving an address value into the register.
+ONLY THE SIZE OF THE DATA is moved.
+So, if you do "move.b #$20, A1 and A1 contains 0xFFFFFFFF, it will now have 0xFFFFFF20
+If you do "move.w #$3030, A1 will go from 0xFFFFFFFF to 0xFFFF3030"
+and if you do "move.lw $11111111, A1 will go from 0xFFFFFFFF to 0x11111111"
+
+When you see ()s around an A register, it's de-referencing the address and writing to the memory space in the address.
+so, back at our example of A1 = 0xFFFFFFFF and "move.b #$20, A1", if we instead idd "move.b #$20, (A1)" then instead of
+A1 going to 0xFFFFFF20, it stays as 0xFFFFFFFF and the memory AT 0xFFFFFFFF becomes $20.
+
+Increment and decrement increase / decrease the address STORED in the register.
+
+Increment always comes after.
+move.b, #$20, (A1)+ means "write $20 to the memory space at address in A1 and then increment the address in A1."
+So if A1 == 0xFFFFFFFE, it would write $20 to 0xFFFFFFE and then the address in A1 would increment to 0xFFFFFFFF.
+
+Decrements always come before.
+move.b, #$20, -(A1) means "decrement the address at A1 and then write the value to the memory space of the address in A1".
+So, if A1 was 0xFFFFFFFE, it would become 0xFFFFFFFD and then the value at 0xFFFFFFFD would becomer #$20.
+
+homework:
+what will d0 contain at the end of this?
+All registers start with 0x0
+
+move.w    #$0123,d0
+          move.b    d0,d1
+          move.w    d1,d2
+          move.l    #$FFFF0000,d3
+          move.w    d0,d3
+          move.l    d3,d0
+          move.w    d2,d0
+
+1. d0 = 0x000000123
+2. d1 = 0x000000023
+3. d2 = 0x000000023
+4. d3 = 0xFFFF0000
+5. d3 = 0xFFFF0123
+6. d0 = 0xFFFF0123
+7. d0 = 0xFFFF0023
+
+the answer is 0xFFFF0023
+I got the homework right!!!
+
+
+    

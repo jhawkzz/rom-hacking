@@ -1,0 +1,3 @@
+@copy /Y C:\Users\jered\projects\Cps1RomHacking\hacking_projects\knights_of_the_round\original_romset\knightsu.zip C:\Users\jered\projects\Cps1RomHacking\emulators\mame\roms\knightsu.zip
+@copy /Y C:\Users\jered\projects\Cps1RomHacking\hacking_projects\knights_of_the_round\original_romset\knightsu.zip C:\Users\jered\projects\Cps1RomHacking\emulators\winkawaks\roms\cps1\knightsu.zip
+@copy /Y C:\Users\jered\projects\Cps1RomHacking\hacking_projects\knights_of_the_round\original_romset\knightsu.zip C:\Users\jered\projects\Cps1RomHacking\emulators\fba_029743\roms\knightsu.zip

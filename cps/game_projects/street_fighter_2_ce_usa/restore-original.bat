@@ -1,0 +1,3 @@
+@copy /Y C:\Users\jered\projects\Cps1RomHacking\hacking_projects\street_fighter_2_ce_usa\original_romset\sf2ceua.zip C:\Users\jered\projects\Cps1RomHacking\emulators\mame\roms\sf2ceua.zip
+@copy /Y C:\Users\jered\projects\Cps1RomHacking\hacking_projects\street_fighter_2_ce_usa\original_romset\sf2ceua.zip C:\Users\jered\projects\Cps1RomHacking\emulators\winkawaks\roms\cps1\sf2ceua.zip
+@copy /Y C:\Users\jered\projects\Cps1RomHacking\hacking_projects\street_fighter_2_ce_usa\original_romset\sf2ceua.zip C:\Users\jered\projects\Cps1RomHacking\emulators\fba_029743\roms\sf2ceua.zip

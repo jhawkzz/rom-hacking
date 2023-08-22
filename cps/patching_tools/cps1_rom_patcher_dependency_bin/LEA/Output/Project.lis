@@ -1,0 +1,17 @@
+LEA Macro Assembler v1.03 (CPU: 68000 v1.01)    Project    2021-04-10 12:46:07 AM    Page 1
+
+:-------- C:\Users\Eu\Desktop\knights hack\LEA\sm.x68
+$00000000  =00000D9E                1         org $d9e
+$00000D9E  4EF9 00000DA8            2         jmp mylabel
+$00000DA4  4E71                     3         nop
+$00000DA6  4E71                     4         nop
+$00000DA8                           5     mylabel:
+$00000DA8  4E75                     6         rts
+
+Equates:
+Variables:
+Labels:
+  mylabel                 = $00000DA8 =     3496
+Command line:
+Sections:
+     0	$00000D9E to $00000DAA

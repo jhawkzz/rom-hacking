@@ -1,0 +1,4 @@
+D0-7 are general purpose registers, 32bits
+A0-7 are address registers, 32bits
+PC register is 32 bits.
+Status Register, 16 bits. Low 8 bits are used for interrupts by OS, high 8bits are Condition Flags

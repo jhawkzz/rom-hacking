@@ -1,0 +1,133 @@
+ROM data for intro is in rom 23
+
+I think 0x002EAE is a rendering routine
+
+68k instruction ref http://68k.hax.com/BRA
+
+great tutorial https://mrjester.hapisan.com/04_MC68/Sect02Part01/Index.html
+
+setting a watchpoint in mame
+use the main window - lower input field
+wpset 0xaddr,1,r (for read or rw for write) - this assumes the main cpu memory
+
+0x0094e2 was the program counter address when the drawing routine returned from rendering "ETC"
+0x002e90 its definitely a function that renders the intro text, but it does more, because its called in multiple places.
+i replacedd it with an immediate return (rts) and it skips the intro text but also removes other stuff too lol
+OK! it reneders the intro text, it renders INSERT COIN, and it renders stat info on the player.
+
+
+0x002EC2 is the redering function for service menu font!
+0x68484 might be the service menu
+if not, put a watchpoint on 0x2ec2 enter service menu and step thru it to see whats calling it
+I THINK IT IS! I put a bp on 0x68484 and it didnt fire til i hit F2
+
+
+looking for the dip switch settings in the compiled fba32bit
+remember the dip switches are 4bytes,1byte,1byte,1byte 
+so
+{0x14, 0x01, 0x80, 0x80, "Test"                   },
+14000000 01 80 80 (notice how its little endian, so its not 0x00000014, its 0x14000000)
+
+00000000FE0002 - demo sound but 7700 instances of this byte pattern
+1D000000 01 20 00 - demo sound off value. there are only 14 patterns of this. Now look for a preceding pattern of
+4 garbage bytes (representing a char *) for the word "Demo Sound" and then the bytes 
+00000000 FE 00 02
+
+so somewthing like
+DEMO SOUND DEFAULT   CHAR*		 "Off"
+00 00 00 00 FE 00 02 XX XX XX XX 1D 00 00 00 01 20 00
+im seeing it with FIVE bytes between them. might be missing a byte used for something.
+These are FBA specific dip settings that only apply when you use the dip window 
+
+
+I got it!!
+To figure out where the dip value was at, I broke the debugger and did a full memory dump.
+dump 0,FFFFFFFF dipOff.dmp
+then i turned the dip ON
+dump 0,FFFFFFFF dipOn.dmp
+beyond compare showed me the memory addresses that were different!
+
+MAME debugger version 0.250 (mame0250)
+Currently targeting knights (Knights of the Round (World 911127))
+>wpset 901650,1,w
+Watchpoint 2 set
+Stopped at watchpoint 2 writing 8820 to 901650 (PC=068788)
+This is the letter "O" being written to "Demo Sound: On" when the dip is on.
+Its the same when the dip is off, because, well, its still the letter O
+
+the dip value is at 0x80001E but my watchpoint isnt working. wtf?
+maybe it cant break ON it because its a dip input
+reading works! wpset 80001E,1,r triggers with:
+PC=B40
+	This is a move.b $80001E.l (as in little L), ($249e,A5)
+		Now FFFFA49E has 020CFFBF (remember the mame debugger is flipped)
+	Next is not.l ($249c,A5) [note its C and not E like below)
+		now FFFFA49E has 020C0040
+	After a few more instructions we do BSR (branch to subroutine) D78 which flows nicely
+	with the second of two hits to the watchpoint!
+
+PC=D90
+	This is a move.b $80 00 1E.l (as in little L), D0
+		D0 now has FB in it.
+	Next instruction is not.b D0
+		This flips it to 40 (funny thats what they put in the FBA for mvsx)
+	Next is move.b D0, ($249e,A5) [write the value in D0 to the addr in A5 + 249e)
+		which is FFFFA49E. Confirmed it wrote 0x40 to that address. 
+	
+	
+I think D78 - D9C is the function to check dip switches and set them.
+
+
+So there are two functions processing the DIP switch value.
+B24 to BA2
+
+D78 to D9C
+
+i can override the memory here: fill 0xFFFFA49E,1,0x60
+but every tick it gets overridden again.
+I think the 80001E range of memory is input, because mame can't write to it. 
+(watchpoint writes fail, fill fails, but reads work and the dip UI can write to it)
+
+I think that the functions i found are driver functions that manage the dip switches.
+but, game code appears to read the dip value at instruction address 00010B6
+so if you put 'bpset 00010B6' and watch inst 10B6, you'll see it move the dip value into D1.
+
+We know that the dip switch value gets placed into FFFFA49E. So look for everywhere that's read from.
+
+
+Areas that read FFFFA49E when in the service menu
+B48 (first function above)
+C30 (new function), what does IT do?
+	bpset C2C (just above) does a bit test against FFFFA49E (the dip value) 
+	and then the next line, C36 does a BEQ C42 which passes when the dip is OFF. it also passes when ON. sigh.
+	I think C28 to C66 is a rendering function 
+C24 - C66 appear to be some kind of looping / rendering function.
+	Called during the legal screens, service test, and demo
+
+10B6 (what i think seems to be game code)
+
+SANITY CHECK - you CAN use the memory addresses within the rom (at least kr_23e) and they map to mame memory.
+Example: 748B2 is the address of the "E" in "ETC" and setting a watchpoint on it does work. wpset 748B2,1,r
+
+Ok to dump the CPU memory (the program instructions) in actual assembled order, run the game, type
+save mem.bin,0,20000
+and open that in a hex editor. Its the memory you're looking at in the debugger.
+what do you know, it found...
+B40 1B79 0080001E 249E
+If i can find that in the original roms, im done.
+I did it. So the problem was trying to read the rom files. THey're too fragmented and
+they need to be assembled by the cps1 toolchain first and then split apart.
+
+$2e90 - Region rendering / insert coin font.
+$2EC2 - service menu font render
+
+I DID IT!!!!
+
+850 is a function looping over ram and 0ing it at boot!
+
+Put a BP on 6846a
+when we enter the service menu, it fires, and its being returned to from 
+2708 is some kind of function used to change game states!
+2708 is called when changing from Legal -> Intro -> Demo as well as service menu
+26F8 appears to be the start of this call, and is definitely a function taht aids in switching game modes.
+

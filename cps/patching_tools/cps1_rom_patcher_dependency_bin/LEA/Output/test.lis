@@ -1,0 +1,21 @@
+LEA Macro Assembler v1.03 (CPU: 68000 v1.01)    test    12/11/2022 1:34:48 PM    Page 1
+
+:-------- C:\Users\Jered\Desktop\cps1patch_toolchain\patch_dev\bin\LEA\main.x68
+$00000000  =00074876                1         org $74876     ; the string we're replacing starts at this address
+$00074876  0E 0D 10 20 20 20 48     2         dc.b $0E, $0D, $10, '   HELLO, WORLD!  (FROM OUR PATCH)  ', $2F
+           45 4C 4C 4F 2C 20 57 4F 52 4C 44 21 20 20 28
+           46 52 4F 4D 20 4F 55 52 20 50 41 54 43 48 29
+           20 20 2F
+$0007489E                           3                        ; $0E is the X location of text, with $05 being left most column
+$0007489E                           4                        ; $0D is the Y location of text, with $02 being top most row
+$0007489E                           5                        ; $10 contains text attributes
+$0007489E                           6                        ;
+$0007489E                           7                        ; we must start from an even offset and have an even length
+$0007489E                           8                        ; which is why the extra $2F is there at the end
+
+Equates:
+Variables:
+Labels:
+Command line:
+Sections:
+     0	$00074876 to $0007489E
