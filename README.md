@@ -16,3 +16,5 @@ Soft Dip Settings: Allows a user to change settings normally controlled by hardw
 Exit Service Menu: Support for exiting the game’s service menu was not implemented in the original binary. Instead, an arcade owner had to power cycle to exit the menu. This patch allows exiting back to the game from the service menu.
 
 Restore Health: Patched the game’s main fighting tick function to allow a player to receive full health by pressing their respective Start Button during a match. Additionally, the life bar tick function was never written to animate “up” as life went up, so I replaced that function with a version that supports animating in either direction.
+
+Inifinite Time: Round timer never goes down.
